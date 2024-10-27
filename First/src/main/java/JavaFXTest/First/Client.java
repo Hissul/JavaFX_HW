@@ -1,22 +1,23 @@
 package JavaFXTest.First;
 
-import java.io.File;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.concurrent.CompletableFuture;
+import javafx.application.Platform;
+import javafx.scene.control.Label;
+import javafx.scene.layout.VBox;
 
 public class Client {
 	
-	private String host;
-	private int port;
-	private Socket socket;
+	private static String host = "localhost";
+	private static int port = 9463;
+	public Socket socket;
 	
-	
-	public Client() {
-		this.host = "localhost";
-		this.port = 9463;
-	}
+	private ObjectInputStream inputStream;
+	private ObjectOutputStream outputStream;
 	
 	
 	public void connect() {
@@ -32,64 +33,79 @@ public class Client {
 	
 	public void disconnect() {
 		
-		try {
-			socket.close();
-		} 
-		catch (IOException e) {			
-			System.out.println(e);
-		}
+		if(socket.isConnected()) {
+			
+			try {
+				socket.close();
+			} 
+			catch (IOException e) {			
+				System.out.println(e);
+			}
+		}		
 	}
 	
 	
-	public void say(String message) throws IOException {
+	public void sandMessage(String message){		
 		
-		ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());
+		try {			
+			
+			outputStream.writeObject(message);
+			
+		} 
+		catch (IOException e) {
+			e.printStackTrace();
+		}
 		
-		outputStream.writeObject("text");
-		
-		System.out.println("Type -> text <- sent on server" );		
-		
-		
-		outputStream.writeObject(message);
-		
-		System.out.println("\"" + message + "\" sent on server" );
-		
-		//outputStream.close();
+		System.out.println("\"" + message + "\" sent on server" );		
 	}
 	
 
 	
-	public String hear() throws IOException {
+	public String reseiveMessage() {
 		
-		String result = "";
-		
-		ObjectInputStream inputStream = new ObjectInputStream(socket.getInputStream());
+		String result = "";		
 		
 		try {
 			result = (String) inputStream.readObject();
 		} 
-		catch (ClassNotFoundException | IOException e) {			
-			System.out.println(e);
-		}
-		
-		inputStream.close();
+		catch (IOException | ClassNotFoundException e) {			
+			e.printStackTrace();
+		}	
 		
 		return result;
 	}
 	
-	public void sendFile(File file) throws IOException {
+
+	public void ListenServer(VBox chastVBox) {
 		
-		ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());
-		
-		outputStream.writeObject("file");
-		
-		System.out.println("Type -> file <- sent on server" );
-		
-		outputStream.writeObject(file);
-		
-		System.out.println("File sent on server" );
-		
-		//outputStream.close();
+		CompletableFuture.runAsync(() -> {
+			
+			try {			
+				
+				outputStream = new ObjectOutputStream(socket.getOutputStream());
+				outputStream.flush();
+				
+				inputStream = new ObjectInputStream(socket.getInputStream());
+				
+				while(socket.isConnected()) {
+					
+					try {
+						String result = (String) inputStream.readObject();
+						
+						Platform.runLater(() -> {
+							chastVBox.getChildren().add(new Label(result));
+						});
+					} 
+					catch (ClassNotFoundException e) {
+						
+						e.printStackTrace();
+					}
+				}
+			} 
+			catch (IOException e) {				
+				e.printStackTrace();
+			}
+		});
 	}
 
 }
