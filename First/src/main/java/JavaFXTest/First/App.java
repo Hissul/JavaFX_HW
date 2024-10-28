@@ -77,10 +77,11 @@ public class App extends Application {
 			server.connect();	
 			
 			
-			server.ListenServer(chastVBox);
+			server.listenServer(chastVBox);
 			
 			
-			Button disconectButton = new Button("Disconect");
+			Button disconectButton = new Button("Disconect");	
+			
 			
 			 //событие DisconectButton
 			disconectButton.setOnAction(new EventHandler<ActionEvent>() {
@@ -94,15 +95,17 @@ public class App extends Application {
 			});
 			
 			HBox disHbox = new HBox(disconectButton);
-			disHbox.setAlignment(Pos.TOP_RIGHT);
+			disHbox.setAlignment(Pos.TOP_RIGHT);		
+			disHbox.setMargin(disconectButton, new Insets(0, 30, 0, 0));
 			
 			TextField message = new TextField();
 			message.setMaxWidth(480);
 			message.setMinWidth(480);			
 
-			chastVBox.setPadding(new Insets(0, 0 , 400 , 0));
+			//chastVBox.setPadding(new Insets(0, 0 , 400 , 0));
 			
 			Button sendButton = new Button("Send");
+			sendButton.setMinWidth(100);
 			
 			//событие SendButton
 			sendButton.setOnAction(new EventHandler<ActionEvent>() {
@@ -110,21 +113,24 @@ public class App extends Application {
 				@Override
 				public void handle(ActionEvent event) {
 					
-					if(message.getText().length() < 1) {
+					if(message.getText().length() < 1) {						
 						return;
 					}
 					
 					server.sandMessage(name + " : " + message.getText());
+					message.setText("");
 				}
 				
 			});
 			
-			HBox hbox = new HBox(message,sendButton);
+			HBox hbox = new HBox(sendButton, message);
 			hbox.setMaxWidth(640);
 			hbox.setAlignment(Pos.BOTTOM_CENTER);
+			hbox.setSpacing(10);
 			
 			
-			VBox vbox = new VBox(disHbox, chastVBox, hbox);
+			VBox vbox = new VBox(disHbox, hbox, chastVBox);
+			vbox.setSpacing(10);
 			
 			
 			var newScene = new Scene(new StackPane(vbox), 640, 480);
@@ -148,28 +154,7 @@ public class App extends Application {
     stage.setScene(scene);
     stage.show();  
    }
-    
-    
-    
-    
-    public class ReseiveFromSevrer implements Callable {
-
-		@Override
-		public Object call() throws Exception {
-			
-			System.out.println("RUN START");
-			
-			
-				System.out.println("RUN START WHILE");
-				String fromServer = server.reseiveMessage();			
-				chastVBox.getChildren().add(new Label(fromServer));
-			
-			return null;
-		}
-    }
-    
-    
-    
+ 
 
     public static void main(String[] args) {
         launch();

@@ -26,7 +26,7 @@ public class Client {
 			socket = new Socket(host, port);
 		} 
 		catch (IOException e) {			
-			System.out.println(e);
+			System.out.println("connect function -> " + e);
 		}
 	}
 	
@@ -39,7 +39,7 @@ public class Client {
 				socket.close();
 			} 
 			catch (IOException e) {			
-				System.out.println(e);
+				System.out.println("disconnect function -> " + e);
 			}
 		}		
 	}
@@ -47,36 +47,40 @@ public class Client {
 	
 	public void sandMessage(String message){		
 		
-		try {			
+		if(socket.isConnected()) {
+			try {			
+				
+				outputStream.writeObject(message);
+				
+			} 
+			catch (IOException e) {
+				System.out.println("sandMessage function -> " + e);
+			}
 			
-			outputStream.writeObject(message);
-			
-		} 
-		catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-		System.out.println("\"" + message + "\" sent on server" );		
+			System.out.println("\"" + message + "\" sent on server" );
+		}				
 	}
 	
 
 	
 	public String reseiveMessage() {
 		
-		String result = "";		
+		String result = "";	
 		
-		try {
-			result = (String) inputStream.readObject();
-		} 
-		catch (IOException | ClassNotFoundException e) {			
-			e.printStackTrace();
-		}	
+		if(socket.isConnected()) {
+			try {
+				result = (String) inputStream.readObject();
+			} 
+			catch (IOException | ClassNotFoundException e) {			
+				System.out.println("reseiveMessage function -> " + e);
+			}
+		}
 		
 		return result;
 	}
 	
 
-	public void ListenServer(VBox chastVBox) {
+	public void listenServer(VBox chastVBox) {
 		
 		CompletableFuture.runAsync(() -> {
 			
@@ -87,8 +91,7 @@ public class Client {
 				
 				inputStream = new ObjectInputStream(socket.getInputStream());
 				
-				while(socket.isConnected()) {
-					
+				while(socket.isConnected()) {					
 					try {
 						String result = (String) inputStream.readObject();
 						
@@ -96,14 +99,13 @@ public class Client {
 							chastVBox.getChildren().add(new Label(result));
 						});
 					} 
-					catch (ClassNotFoundException e) {
-						
-						e.printStackTrace();
+					catch (ClassNotFoundException e) {						
+						System.out.println(e);
 					}
 				}
 			} 
 			catch (IOException e) {				
-				e.printStackTrace();
+				System.out.println("listenServer function -> " + e);
 			}
 		});
 	}
