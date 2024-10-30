@@ -63,8 +63,8 @@ public class App extends Application {
 				}
 			}
     	});    	
+  
 
-    
     //событие ConnectButton
     connectButton.setOnAction(new EventHandler<ActionEvent>() {
 
@@ -77,7 +77,7 @@ public class App extends Application {
 			server.connect();	
 			
 			
-			server.listenServer(chastVBox);
+			server.listenServer(chastVBox);			
 			
 			
 			Button disconectButton = new Button("Disconect");	

@@ -16,68 +16,63 @@ public class Client {
 	private static int port = 9463;
 	public Socket socket;
 	
-	private ObjectInputStream inputStream;
-	private ObjectOutputStream outputStream;
+	public ObjectInputStream inputStream;
+	public ObjectOutputStream outputStream;
 	
-	
-	public void connect() {
+	public Boolean connect() {
 		
 		try {
-			socket = new Socket(host, port);
+			socket = new Socket(host, port);			
+			return true;
 		} 
 		catch (IOException e) {			
 			System.out.println("connect function -> " + e);
 		}
+		
+		return false;
 	}
 	
 	
-	public void disconnect() {
+	public Boolean disconnect() {
 		
 		if(socket.isConnected()) {
 			
 			try {
 				socket.close();
+				
+				return true;
 			} 
 			catch (IOException e) {			
 				System.out.println("disconnect function -> " + e);
 			}
-		}		
+			
+			return false;
+		}	
+		
+		return false;
 	}
 	
 	
-	public void sandMessage(String message){		
+	public Boolean sandMessage(String message){		
 		
 		if(socket.isConnected()) {
 			try {			
 				
 				outputStream.writeObject(message);
 				
+				return true;
 			} 
 			catch (IOException e) {
 				System.out.println("sandMessage function -> " + e);
 			}
 			
 			System.out.println("\"" + message + "\" sent on server" );
-		}				
+			return false;
+		}		
+		
+		return false;
 	}
-	
 
-	
-	public String reseiveMessage() {
-		
-		String result = "";	
-		
-		if(socket.isConnected()) {
-			try {
-				result = (String) inputStream.readObject();
-			} 
-			catch (IOException | ClassNotFoundException e) {			
-				System.out.println("reseiveMessage function -> " + e);
-			}
-		}
-		
-		return result;
-	}
 	
 
 	public void listenServer(VBox chastVBox) {
