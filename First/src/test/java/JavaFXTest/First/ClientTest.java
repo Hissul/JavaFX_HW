@@ -18,8 +18,10 @@ class ClientTest {
 	
 	private static String host = "localhost";
 	private static int port = 9463;
+	
 	private static Client server;
 	private static ServerSocket listener;
+	
 	private static ObjectInputStream inputStream;
 	private static ObjectOutputStream outputStream;
 
@@ -27,10 +29,8 @@ class ClientTest {
 	static void setUpBeforeClass() throws Exception {
 		try {
 			listener = new ServerSocket(port);			
-			server = new Client();
-			
-			
-			
+			server = new Client();	
+			System.out.println("listener started");
 		} 
 		catch (IOException e) {			
 			e.printStackTrace();
@@ -115,22 +115,26 @@ class ClientTest {
 			Socket client = listener.accept();
 			
 			ObjectOutputStream outServer = new ObjectOutputStream(client.getOutputStream());
-			outServer.writeObject("test");
-			
+			outServer.writeObject("test");			
 		} 
 		catch (IOException e) {
 			e.printStackTrace();
 		}
 		
-		// ???? WTF ... How should I test that?
-		// Can't make method "listenServer" with RETURN
-		// That will be the cause exiting from the loop
 		server.listenServer(null);
 		
+		// пришлось поставить задержку т.к. метод server.listenServer выполняется на другом потоке
+		// без задержки assert наступает раньше чем инициализируются inputStream и outputStream
+		try {
+			Thread.sleep(100);
+		} catch (InterruptedException e) {			
+			e.printStackTrace();
+		}
+		
+		assertNotNull(server.inputStream);
+		assertNotNull(server.outputStream);
 	
 	}
-	
-	
 	
 
 }

@@ -18,6 +18,7 @@ public class Client {
 	
 	public ObjectInputStream inputStream;
 	public ObjectOutputStream outputStream;
+	public String result;
 	
 	public Boolean connect() {
 		
@@ -79,8 +80,7 @@ public class Client {
 		
 		CompletableFuture.runAsync(() -> {
 			
-			try {			
-				
+			try {							
 				outputStream = new ObjectOutputStream(socket.getOutputStream());
 				outputStream.flush();
 				
@@ -88,7 +88,9 @@ public class Client {
 				
 				while(socket.isConnected()) {					
 					try {
-						String result = (String) inputStream.readObject();
+						result = (String) inputStream.readObject();
+						
+						System.out.println(result);
 						
 						Platform.runLater(() -> {
 							chastVBox.getChildren().add(new Label(result));
@@ -104,5 +106,6 @@ public class Client {
 			}
 		});
 	}
+
 
 }
